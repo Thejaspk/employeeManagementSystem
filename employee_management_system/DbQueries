@@ -1,0 +1,11 @@
+Create Department Table
+
+CREATE TABLE `employee_management_system`.`department` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `department_name` VARCHAR(100) NULL DEFAULT NULL,
+  `created_date` DATE NULL,
+  `department_head_id` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);
+
+  ----------------------------------------------------------------------------
