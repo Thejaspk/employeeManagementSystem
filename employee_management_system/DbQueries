@@ -9,3 +9,54 @@ CREATE TABLE `employee_management_system`.`department` (
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);
 
   ----------------------------------------------------------------------------
+  
+  Create Employee Table 
+  
+  CREATE TABLE `employee_management_system`.`employee` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NULL,
+  `date_of_birth` DATE NULL,
+  `salary` DECIMAL NULL,
+  `address` VARCHAR(500) NULL,
+  `role` VARCHAR(45) NULL,
+  `joining_date` DATE NULL,
+  `bonus_percentage` DECIMAL NULL,
+  `department_id` INT NULL,
+  `reporting_manager_id` INT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  INDEX `fk_department_id_idx` (`department_id` ASC) VISIBLE,
+  CONSTRAINT `fk_department_id`
+    FOREIGN KEY (`department_id`)
+    REFERENCES `employee_management_system`.`department` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+  -------------------------------------------------------------
+  
+employee table alter query
+  
+  ALTER TABLE `employee_management_system`.`employee` 
+ADD INDEX `fk_reporting_manager_id_idx` (`reporting_manager_id` ASC) VISIBLE;
+;
+ALTER TABLE `employee_management_system`.`employee` 
+ADD CONSTRAINT `fk_reporting_manager_id`
+  FOREIGN KEY (`reporting_manager_id`)
+  REFERENCES `employee_management_system`.`employee` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+  .............................................................
+  
+  department table alter query
+  
+  ALTER TABLE `employee_management_system`.`department` 
+CHANGE COLUMN `department_head_id` `department_head_id` INT NULL DEFAULT NULL ,
+ADD INDEX `fk_head_id_idx` (`department_head_id` ASC) VISIBLE;
+;
+ALTER TABLE `employee_management_system`.`department` 
+ADD CONSTRAINT `fk_head_id`
+  FOREIGN KEY (`department_head_id`)
+  REFERENCES `employee_management_system`.`employee` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+  
+  
