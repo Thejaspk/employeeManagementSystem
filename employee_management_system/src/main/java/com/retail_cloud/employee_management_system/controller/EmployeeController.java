@@ -1,5 +1,7 @@
 package com.retail_cloud.employee_management_system.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -64,9 +66,16 @@ public class EmployeeController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 
-	public ResponseEntity<EmployeeLookUpDTO> employeeLookUp(@RequestParam Long id,
+	@GetMapping(value="employeeLookUp")
+	public ResponseEntity<List<EmployeeLookUpDTO>> employeeLookUp(
 			@RequestParam(required = false, defaultValue = "false") Boolean lookup) {
-		return null;
+		List<EmployeeLookUpDTO> response =employeeService.getEmployeeLookUp(lookup);
+		if(response != null) {
+			return ResponseEntity.status(HttpStatus.OK).body(response);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}
 	}
 
 }

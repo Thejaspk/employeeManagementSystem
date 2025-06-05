@@ -4,5 +4,8 @@ import lombok.Data;
 
 @Data
 public class EmployeeLookUpDTO {
+	
+	private Long id;
+	private String name;
 
 }

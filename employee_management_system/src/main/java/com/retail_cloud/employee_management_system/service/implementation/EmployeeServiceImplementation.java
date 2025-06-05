@@ -1,5 +1,6 @@
 package com.retail_cloud.employee_management_system.service.implementation;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
@@ -8,8 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.retail_cloud.employee_management_system.dto.DepartmentRequestDTO;
-import com.retail_cloud.employee_management_system.dto.DepartmentResponseDTO;
+import com.retail_cloud.employee_management_system.dto.EmployeeLookUpDTO;
 import com.retail_cloud.employee_management_system.dto.EmployeeRequestDTO;
 import com.retail_cloud.employee_management_system.dto.EmployeeResponseDTO;
 import com.retail_cloud.employee_management_system.entity.Department;
@@ -84,7 +84,6 @@ public class EmployeeServiceImplementation implements EmployeeService {
 		return response;
 	}
 
-	
 	@Override
 	public EmployeeResponseDTO updateEmployee(EmployeeRequestDTO request, Long id) {
 
@@ -127,6 +126,29 @@ public class EmployeeServiceImplementation implements EmployeeService {
 				employeeRepository.save(employee);
 				BeanUtils.copyProperties(employee, response);
 			}
+			return response;
+		}
+		return null;
+	}
+
+	@Override
+	public List<EmployeeLookUpDTO> getEmployeeLookUp(Boolean lookup) {
+
+		if (lookup) {
+			List<Employee> employeeList = employeeRepository.findAll();
+
+			List<EmployeeLookUpDTO> response = employeeList.stream().map(emp -> {
+				EmployeeLookUpDTO dto = new EmployeeLookUpDTO();
+
+				if (emp.getId() != null) {
+					dto.setId(emp.getId());
+				}
+				if (emp.getName() != null && !emp.getName().equals("")) {
+					dto.setName(emp.getName());
+				}
+				return dto;
+
+			}).toList();
 			return response;
 		}
 		return null;
