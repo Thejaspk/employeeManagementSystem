@@ -1,9 +1,12 @@
 package com.retail_cloud.employee_management_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,7 +46,7 @@ public class DepartmentController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 
-	@DeleteMapping(value="deleteDepartment")
+	@DeleteMapping(value = "deleteDepartment")
 	public ResponseEntity<String> deleteDepartment(@RequestParam("id") Long id) {
 
 		Boolean response = departmentService.deleteDepartment(id);
@@ -58,4 +61,21 @@ public class DepartmentController {
 		}
 
 	}
+
+	@GetMapping(value = "getAllDepartment")
+	public ResponseEntity<Page<DepartmentResponseDTO>> getAllDepartment(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "20") int size) {
+
+		Page<DepartmentResponseDTO> responseList = departmentService.getAllDepartment(PageRequest.of(page, size));
+		return ResponseEntity.status(HttpStatus.OK).body(responseList);
+	}
+
+	@GetMapping(value = "getDepartmentId")
+	public ResponseEntity<DepartmentResponseDTO> getDepartmentById(@RequestParam Long id,
+			@RequestParam(value = "expand", required = false) String expand) {
+
+		DepartmentResponseDTO dto = departmentService.getDepartmentById(id, expand);
+		return ResponseEntity.status(HttpStatus.OK).body(dto);
+	}
+
 }

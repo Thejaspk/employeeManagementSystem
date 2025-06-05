@@ -1,13 +1,18 @@
 package com.retail_cloud.employee_management_system.service.implementation;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.retail_cloud.employee_management_system.dto.DepartmentRequestDTO;
 import com.retail_cloud.employee_management_system.dto.DepartmentResponseDTO;
+import com.retail_cloud.employee_management_system.dto.EmployeeResponseDTO;
 import com.retail_cloud.employee_management_system.entity.Department;
 import com.retail_cloud.employee_management_system.entity.Employee;
 import com.retail_cloud.employee_management_system.repository.DepartmentRepository;
@@ -85,5 +90,82 @@ public class DepartmentServiceImplementation implements DepartmentService {
 		return null;
 		
 	}
+
+	@Override
+	public Page<DepartmentResponseDTO> getAllDepartment(Pageable pageable) {
+		
+		Page<Department> departments = departmentRepository.findAll(pageable);
+		
+		Page<DepartmentResponseDTO> responsePage=departments.map(department->{
+			DepartmentResponseDTO dto = new DepartmentResponseDTO();
+			if(department.getCreatedDate()!=null) {
+			dto.setCreatedDate(department.getCreatedDate());
+			}
+			if(department.getDepartmentName()!=null) {
+			dto.setDepartmentName(department.getDepartmentName());
+			}
+			if(department.getHeadId()!=null) {
+			dto.setHeadId(department.getHeadId().getId());
+			}
+			return dto;
+		});
+		
+		return responsePage;
+	}
+
+	@Override
+	public DepartmentResponseDTO getDepartmentById(Long id, String expand) {
+		
+		Optional<Department> departmentOptional = departmentRepository.findById(id);
+		Department department = new Department();
+		DepartmentResponseDTO response = new DepartmentResponseDTO();
+		List<EmployeeResponseDTO> employeeResponseDTOList = null;
+
+		
+		if(departmentOptional.isPresent()) {
+			if(departmentOptional.get().getCreatedDate() != null) {
+			response.setCreatedDate(departmentOptional.get().getCreatedDate());
+			}
+			if(departmentOptional.get().getDepartmentName() != null && !departmentOptional.get().getDepartmentName().equals("") ) {
+				response.setDepartmentName(departmentOptional.get().getDepartmentName());
+				}
+			if(departmentOptional.get().getHeadId()!= null) {
+				response.setHeadId(departmentOptional.get().getHeadId().getId());
+				
+			}
+			if(departmentOptional.get().getId() != null) {
+				response.setId(departmentOptional.get().getId());
+			}
+			 
+			if(expand.equalsIgnoreCase("expand")) {
+				
+				List<Employee> employeesList = departmentOptional.get().getListOfEmployees();
+				
+				if(employeesList != null && !employeesList.isEmpty()) {
+					
+				 employeeResponseDTOList  =	employeesList.stream().map(employee-> {
+						EmployeeResponseDTO empDTO = new EmployeeResponseDTO();
+						empDTO.setId(employee.getId());
+						empDTO.setAddress(employee.getAddress());
+						empDTO.setBonusPercentage(employee.getBonusPercentage());
+						empDTO.setDateOfBirth(employee.getDateOfBirth());
+						empDTO.setDepartmentId(employee.getDepartmentId().getId());
+						empDTO.setJoiningDate(employee.getJoiningDate());
+						empDTO.setName(employee.getName());
+						empDTO.setReportingManagerId(employee.getReportingManagerId().getId());
+						empDTO.setRole(employee.getRole());
+						empDTO.setSalary(employee.getSalary());
+						return empDTO;
+					}).toList();
+				}
+			}
+			
+			response.setEmployees(employeeResponseDTOList);
+			
+		}
+		return response;
+	}
+
+
 
 }
