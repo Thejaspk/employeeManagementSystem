@@ -1,6 +1,5 @@
 package com.retail_cloud.employee_management_system.service.implementation;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
@@ -29,8 +28,8 @@ public class EmployeeServiceImplementation implements EmployeeService {
 
 		if (optionalEmployee.isPresent()) {
 			Employee employee = optionalEmployee.get();
-			employee.setDepartmentId(new Department());
-			employee.getDepartmentId().setId(departmentId);
+			employee.setDepartment(new Department());
+			employee.getDepartment().setId(departmentId);
 			employeeRepository.save(employee);
 			return true;
 		} else {
@@ -40,7 +39,7 @@ public class EmployeeServiceImplementation implements EmployeeService {
 	}
 
 	@Override
-	public Page<EmployeeResponseDTO> getAllEmployee(Pageable pageable) {
+	public Page<EmployeeResponseDTO> getAllEmployees(Pageable pageable) {
 		Page<Employee> employeesPaginatedList = employeeRepository.findAll(pageable);
 
 		Page<EmployeeResponseDTO> responsePage = employeesPaginatedList.map(employee -> {
@@ -55,14 +54,14 @@ public class EmployeeServiceImplementation implements EmployeeService {
 				dto.setJoiningDate(employee.getJoiningDate());
 				dto.setBonusPercentage(employee.getBonusPercentage());
 
-				if (employee.getDepartmentId() != null) {
-					dto.setDepartmentId(employee.getDepartmentId().getId());
+				if (employee.getDepartment() != null) {
+					dto.setDepartmentId(employee.getDepartment().getId());
 				} else {
 					dto.setDepartmentId(null);
 				}
 
-				if (employee.getReportingManagerId() != null) {
-					dto.setReportingManagerId(employee.getReportingManagerId().getId());
+				if (employee.getReportingManager() != null) {
+					dto.setReportingManagerId(employee.getReportingManager().getId());
 				} else {
 					dto.setReportingManagerId(null);
 				}
@@ -78,8 +77,22 @@ public class EmployeeServiceImplementation implements EmployeeService {
 		EmployeeResponseDTO response = new EmployeeResponseDTO();
 		Employee employee = new Employee();
 		BeanUtils.copyProperties(request, employee);
+		if(request.getReportingManagerId()!= null) {
+		employee.setReportingManager(new Employee());
+		employee.getReportingManager().setId(request.getReportingManagerId());
+		}
+		if(request.getDepartmentId()!=null) {
+		employee.setDepartment(new Department());
+		employee.getDepartment().setId(request.getDepartmentId());
+		}
 		employeeRepository.save(employee);
 		BeanUtils.copyProperties(employee, response);
+		if(request.getReportingManagerId()!= null) {
+			response.setReportingManagerId(employee.getReportingManager().getId());
+		}
+		if(request.getDepartmentId()!=null) {
+			response.setDepartmentId(employee.getDepartment().getId());
+		}
 
 		return response;
 	}
@@ -87,7 +100,7 @@ public class EmployeeServiceImplementation implements EmployeeService {
 	@Override
 	public EmployeeResponseDTO updateEmployee(EmployeeRequestDTO request, Long id) {
 
-		if (request != null) {
+		if (request != null && id != null) {
 			Employee employee = new Employee();
 			EmployeeResponseDTO response = new EmployeeResponseDTO();
 			Optional<Employee> employeeOptional = employeeRepository.findById(id);
@@ -104,8 +117,8 @@ public class EmployeeServiceImplementation implements EmployeeService {
 					employee.setDateOfBirth(request.getDateOfBirth());
 				}
 				if (request.getDepartmentId() != null) {
-					employee.setDepartmentId(new Department());
-					employee.getDepartmentId().setId(request.getDepartmentId());
+					employee.setDepartment(new Department());
+					employee.getDepartment().setId(request.getDepartmentId());
 				}
 				if (request.getJoiningDate() != null) {
 					employee.setJoiningDate(request.getJoiningDate());
@@ -114,8 +127,8 @@ public class EmployeeServiceImplementation implements EmployeeService {
 					employee.setName(request.getName());
 				}
 				if (request.getReportingManagerId() != null) {
-					employee.setReportingManagerId(new Employee());
-					employee.getReportingManagerId().setId(request.getReportingManagerId());
+					employee.setReportingManager(new Employee());
+					employee.getReportingManager().setId(request.getReportingManagerId());
 				}
 				if (request.getRole() != null && !request.getRole().equals("")) {
 					employee.setRole(request.getRole());
@@ -125,6 +138,13 @@ public class EmployeeServiceImplementation implements EmployeeService {
 				}
 				employeeRepository.save(employee);
 				BeanUtils.copyProperties(employee, response);
+				
+				if(employee.getDepartment() != null) {
+					response.setDepartmentId(employee.getDepartment().getId());
+				}
+				if(employee.getReportingManager() != null) {
+					response.setReportingManagerId(employee.getReportingManager().getId());
+				}
 			}
 			return response;
 		}
@@ -132,24 +152,26 @@ public class EmployeeServiceImplementation implements EmployeeService {
 	}
 
 	@Override
-	public List<EmployeeLookUpDTO> getEmployeeLookUp(Boolean lookup) {
+	public Page<EmployeeLookUpDTO> getEmployeeLookUp(Boolean lookup, Pageable pageable) {
 
 		if (lookup) {
-			List<Employee> employeeList = employeeRepository.findAll();
+			
+			Page<Employee> employeesPaginatedList = employeeRepository.findAll(pageable);
 
-			List<EmployeeLookUpDTO> response = employeeList.stream().map(emp -> {
+			Page<EmployeeLookUpDTO> responsePage = employeesPaginatedList.map(emp -> {
 				EmployeeLookUpDTO dto = new EmployeeLookUpDTO();
-
-				if (emp.getId() != null) {
-					dto.setId(emp.getId());
-				}
-				if (emp.getName() != null && !emp.getName().equals("")) {
-					dto.setName(emp.getName());
+				if (emp != null) {
+					if (emp.getId() != null) {
+						dto.setId(emp.getId());
+					}
+					if (emp.getName() != null && !emp.getName().equals("")) {
+						dto.setName(emp.getName());
+					}
 				}
 				return dto;
-
-			}).toList();
-			return response;
+			});
+			return responsePage;
+			
 		}
 		return null;
 	}

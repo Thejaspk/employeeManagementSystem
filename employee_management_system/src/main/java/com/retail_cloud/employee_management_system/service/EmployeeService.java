@@ -13,12 +13,12 @@ public interface EmployeeService {
 
 	Boolean updateEmployeeDepartment(Long id, Long departmentId);
 
-	Page<EmployeeResponseDTO> getAllEmployee(Pageable pageable);
+	Page<EmployeeResponseDTO> getAllEmployees(Pageable pageable);
 
 	EmployeeResponseDTO createEmployee(EmployeeRequestDTO request);
 
 	EmployeeResponseDTO updateEmployee(EmployeeRequestDTO request, Long id);
 
-	List<EmployeeLookUpDTO> getEmployeeLookUp( Boolean lookup);
+	Page<EmployeeLookUpDTO> getEmployeeLookUp( Boolean lookup, Pageable pageable);
 
 }

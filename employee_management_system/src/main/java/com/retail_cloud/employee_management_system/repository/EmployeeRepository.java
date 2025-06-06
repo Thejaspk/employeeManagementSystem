@@ -7,7 +7,7 @@ import com.retail_cloud.employee_management_system.entity.Employee;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-    @Query("SELECT count(e) FROM Employee e WHERE e.departmentId.id = ?1")
+    @Query("SELECT count(e) FROM Employee e WHERE e.department.id = ?1")
 	Long findByDepartmentId(Long id);
 
 }

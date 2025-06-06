@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,9 +36,9 @@ public class DepartmentController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 
-	@PutMapping(value = "updateDepartment")
+	@PutMapping("updateDepartment/{id}")
 	public ResponseEntity<DepartmentResponseDTO> updateDepartment(@RequestBody DepartmentRequestDTO request,
-			@RequestParam("id") Long id) {
+			@PathVariable Long id) {
 
 		DepartmentResponseDTO response = departmentService.updateDepartment(request, id);
 		if (response != null)
@@ -46,8 +47,8 @@ public class DepartmentController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 
-	@DeleteMapping(value = "deleteDepartment")
-	public ResponseEntity<String> deleteDepartment(@RequestParam("id") Long id) {
+	@DeleteMapping(value = "deleteDepartment/{id}")
+	public ResponseEntity<String> deleteDepartment(@PathVariable Long id) {
 
 		Boolean response = departmentService.deleteDepartment(id);
 		if (response == null) {
@@ -56,23 +57,23 @@ public class DepartmentController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Employees are assigned to this department. So it cannot be deleted!");
 		} else {
-			return ResponseEntity.status(HttpStatus.OK).body("Department Deleted :" + id);
+			return ResponseEntity.status(HttpStatus.OK).body("Department Deleted : " + id);
 
 		}
 
 	}
 
-	@GetMapping(value = "getAllDepartment")
-	public ResponseEntity<Page<DepartmentResponseDTO>> getAllDepartment(@RequestParam(defaultValue = "0") int page,
+	@GetMapping(value = "getAllDepartments")
+	public ResponseEntity<Page<DepartmentResponseDTO>> getAllDepartments(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "20") int size) {
 
 		Page<DepartmentResponseDTO> responseList = departmentService.getAllDepartment(PageRequest.of(page, size));
 		return ResponseEntity.status(HttpStatus.OK).body(responseList);
 	}
 
-	@GetMapping(value = "getDepartmentId")
-	public ResponseEntity<DepartmentResponseDTO> getDepartmentById(@RequestParam Long id,
-			@RequestParam(value = "expand", required = false) String expand) {
+	@GetMapping(value = "getDepartmentById")
+	public ResponseEntity<DepartmentResponseDTO> getDepartmentById(@RequestParam(required=true) Long id,
+			@RequestParam(defaultValue = "") String expand) {
 
 		DepartmentResponseDTO dto = departmentService.getDepartmentById(id, expand);
 		return ResponseEntity.status(HttpStatus.OK).body(dto);

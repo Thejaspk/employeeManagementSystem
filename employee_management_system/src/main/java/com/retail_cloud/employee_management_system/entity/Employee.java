@@ -38,9 +38,9 @@ public class Employee {
 	private BigDecimal bonusPercentage;
 	@ManyToOne
 	@JoinColumn(name="department_id")
-	private Department departmentId;
+	private Department department;
 	@ManyToOne
 	@JoinColumn(name="reporting_manager_id")
-	private Employee reportingManagerId;
+	private Employee reportingManager;
 	
 }

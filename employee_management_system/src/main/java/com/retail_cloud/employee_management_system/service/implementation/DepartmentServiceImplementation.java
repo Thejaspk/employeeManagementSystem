@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +36,13 @@ public class DepartmentServiceImplementation implements DepartmentService {
 		DepartmentResponseDTO response = new DepartmentResponseDTO();
 		if (request != null) {
 			BeanUtils.copyProperties(request, department);
+			department.setHeadId(new Employee());
+			department.getHeadId().setId(request.getHeadId());
 			departmentRepository.save(department);
+			
 			BeanUtils.copyProperties(department, response);
+			
+			response.setHeadId(department.getHeadId().getId());
 		}
 		return response;
 
@@ -47,7 +51,7 @@ public class DepartmentServiceImplementation implements DepartmentService {
 	@Override
 	public DepartmentResponseDTO updateDepartment(DepartmentRequestDTO request, Long id) {
 
-		if (request != null) {
+		if (request != null && id != null) {
 			Department department = new Department();
 			DepartmentResponseDTO response = new DepartmentResponseDTO();
 			Optional<Department> departmentOptional = departmentRepository.findById(id);
@@ -66,6 +70,7 @@ public class DepartmentServiceImplementation implements DepartmentService {
 				}
 				departmentRepository.save(department);
 				BeanUtils.copyProperties(department, response);
+				response.setHeadId(department.getHeadId().getId());
 			}
 			return response;
 		}
@@ -107,6 +112,9 @@ public class DepartmentServiceImplementation implements DepartmentService {
 			if(department.getHeadId()!=null) {
 			dto.setHeadId(department.getHeadId().getId());
 			}
+			if(department.getId() != null) {
+				dto.setId(department.getId());
+			}
 			return dto;
 		});
 		
@@ -137,7 +145,7 @@ public class DepartmentServiceImplementation implements DepartmentService {
 				response.setId(departmentOptional.get().getId());
 			}
 			 
-			if(expand.equalsIgnoreCase("expand")) {
+			if(expand.equalsIgnoreCase("employee")) {
 				
 				List<Employee> employeesList = departmentOptional.get().getListOfEmployees();
 				
@@ -149,10 +157,14 @@ public class DepartmentServiceImplementation implements DepartmentService {
 						empDTO.setAddress(employee.getAddress());
 						empDTO.setBonusPercentage(employee.getBonusPercentage());
 						empDTO.setDateOfBirth(employee.getDateOfBirth());
-						empDTO.setDepartmentId(employee.getDepartmentId().getId());
 						empDTO.setJoiningDate(employee.getJoiningDate());
 						empDTO.setName(employee.getName());
-						empDTO.setReportingManagerId(employee.getReportingManagerId().getId());
+						if(employee.getReportingManager()!=null) {
+							empDTO.setReportingManagerId(employee.getReportingManager().getId());
+						}
+						if(employee.getDepartment()!=null) {
+							empDTO.setDepartmentId(employee.getDepartment().getId());
+						}
 						empDTO.setRole(employee.getRole());
 						empDTO.setSalary(employee.getSalary());
 						return empDTO;

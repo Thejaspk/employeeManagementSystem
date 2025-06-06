@@ -31,7 +31,7 @@ public class Department {
 	@JoinColumn(name = "department_head_id")
 	private Employee headId;
 	
-	@OneToMany(mappedBy = "department_id" , fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "department" , fetch = FetchType.LAZY)
 	private List<Employee> listOfEmployees ; 
 	
 
