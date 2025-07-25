@@ -1,5 +1,7 @@
 package com.retail_cloud.employee_management_system.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.retail_cloud.employee_management_system.dto.EmployeeLookUpDTO;
 import com.retail_cloud.employee_management_system.dto.EmployeeRequestDTO;
@@ -51,10 +54,24 @@ public class EmployeeController {
 	@PostMapping(value = "createEmployee")
 	public ResponseEntity<EmployeeResponseDTO> createEmployee(@RequestBody EmployeeRequestDTO request) {
 
-		EmployeeResponseDTO response = employeeService.createEmployee(request);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+	    EmployeeResponseDTO response = employeeService.createEmployee(request);
 
+	    if (response.getId() != null) {
+	        // Build Location URI for the new employee
+	        URI location = ServletUriComponentsBuilder
+	                .fromCurrentRequest()
+	                .path("/{id}")
+	                .buildAndExpand(response.getId())
+	                .toUri();
+
+	        return ResponseEntity
+	                .created(location)   // 201 Created + Location header
+	                .body(response);     // Return the created employee data
+	    } else {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+	    }
 	}
+
 
 	@PutMapping(value = "updateEmployee/{id}")
 	public ResponseEntity<EmployeeResponseDTO> updateEmployee(@RequestBody EmployeeRequestDTO request,

@@ -1,5 +1,7 @@
 package com.retail_cloud.employee_management_system.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,9 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.retail_cloud.employee_management_system.dto.DepartmentRequestDTO;
 import com.retail_cloud.employee_management_system.dto.DepartmentResponseDTO;
+import com.retail_cloud.employee_management_system.exception.CustomResourceNotFoundException;
 import com.retail_cloud.employee_management_system.service.DepartmentService;
 
 @RestController
@@ -29,12 +33,26 @@ public class DepartmentController {
 	@PostMapping(value = "createDepartment")
 	public ResponseEntity<DepartmentResponseDTO> createDepartment(@RequestBody DepartmentRequestDTO request) {
 
-		DepartmentResponseDTO response = departmentService.createDepartment(request);
-		if (response.getId() != null)
-			return ResponseEntity.status(HttpStatus.CREATED).body(response);
-		else
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+	    DepartmentResponseDTO response = departmentService.createDepartment(request);
+
+	    if (response.getId() != null) {
+	        // Build the URI for getDepartmentById
+	        URI location = ServletUriComponentsBuilder
+	                .fromCurrentContextPath()       // base URL: http://localhost:8080
+	                .path("/getDepartmentById")     // endpoint
+	                .queryParam("id", response.getId())
+	                .queryParam("expand", true)     // if expand=true is needed
+	                .build()
+	                .toUri();
+
+	        return ResponseEntity
+	                .created(location)   // HTTP 201 + Location header
+	                .body(response);     // response body
+	    } else {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+	    }
 	}
+
 
 	@PutMapping("updateDepartment/{id}")
 	public ResponseEntity<DepartmentResponseDTO> updateDepartment(@RequestBody DepartmentRequestDTO request,
@@ -76,6 +94,9 @@ public class DepartmentController {
 			@RequestParam(defaultValue = "") String expand) {
 
 		DepartmentResponseDTO dto = departmentService.getDepartmentById(id, expand);
+		if (dto == null) {
+			throw new CustomResourceNotFoundException("Department Not Found with the given id : "+ id);
+		}
 		return ResponseEntity.status(HttpStatus.OK).body(dto);
 	}
 
